@@ -7,7 +7,8 @@
 using namespace std;
 using namespace cv;
 
-string benchmarkPath = "E:/benchmark50/";
+//string benchmarkPath = "E:/benchmark50/";
+string benchmarkPath = "/users/wangqiang/desktop/benchmark100/";
 string videoName = "Boy";
 string videoPath = benchmarkPath + videoName;
 vector<Rect> groundtruthRect;
@@ -40,7 +41,8 @@ int main(){
     Mat cos_window = calculateHann(yf.size());
     
     Mat im,im_gray,patch;
-    Mat xf,zf,kf,kzf,model_xf,model_alphaf,alphaf,new_z;
+    Mat kf,kzf,model_alphaf,alphaf,new_z;
+    vector<Mat>xf,zf,model_xf;
     Mat response;
     
     for (int frame = 0; frame < fileName.size(); frame++) {
@@ -50,17 +52,21 @@ int main(){
         
         if(frame > 0){
             patch = get_subwindow(im, pos, window_sz);
-            zf = fft(get_features(patch, hog_orientations, cell_size, cos_window));
+            zf = nchannelsfft(get_features(patch, hog_orientations, cell_size, cos_window));
             kzf = gaussian_correlation(zf, model_xf, kernel_sigma);
             idft(complexMul(model_alphaf,kzf), response, cv::DFT_SCALE | cv::DFT_REAL_OUTPUT);
             Point maxLoc;
             minMaxLoc(response, NULL, NULL, NULL, &maxLoc);
-            pos.x = pos.x - cvCeil(float(window_sz.width) / 2.0) + cell_size*maxLoc.x;
-            pos.y = pos.y - cvCeil(float(window_sz.height) / 2.0) + cell_size*maxLoc.y;
+            if(float(maxLoc.x) > float(zf[0].cols)/2.0)
+                maxLoc.x = maxLoc.x -zf[0].cols;
+            if(float(maxLoc.y) > float(zf[0].rows)/2.0)
+                maxLoc.y = maxLoc.y -zf[0].rows;
+            pos.x = pos.x + cell_size*(maxLoc.x);
+            pos.y = pos.y - cell_size*(maxLoc.y);
         }
         
         patch = get_subwindow(im, pos, window_sz);
-        xf = fft(get_features(patch, hog_orientations, cell_size, cos_window));
+        xf = nchannelsfft(get_features(patch, hog_orientations, cell_size, cos_window));
         kf = gaussian_correlation(xf, xf, kernel_sigma);
 
         vector<Mat> planes;
@@ -77,7 +83,10 @@ int main(){
         else
         {
             model_alphaf = (1 - interp_factor) * model_alphaf + interp_factor * alphaf;
-            model_xf = (1 - interp_factor) * model_xf + interp_factor * xf;
+            for (int i = 0; i<xf.size(); i++) {
+                model_xf[i] = (1 - interp_factor) * model_xf[i] + interp_factor * xf[i];
+            }
+            
         }
 
         Rect rect_position(pos.x - target_sz.width /2, pos.y - target_sz.height/2, target_sz.width, target_sz.height);

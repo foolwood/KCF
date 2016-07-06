@@ -18,7 +18,7 @@
 using namespace cv;
 using namespace std;
 
-static const int dimHOG = 32;
+static const int dimHOG = 31;
 
 void computeHOG32D(const Mat &imageM, Mat &featM, const int sbin, const int pad_x, const int pad_y);
 cv::Mat get_features(Mat patch,int hog_orientations,int cell_size,Mat &cos_window);

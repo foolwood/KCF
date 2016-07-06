@@ -18,12 +18,12 @@ void computeHOG32D(const Mat &imageM, Mat &featM, const int sbin, const int pad_
     // image size
     const Size imageSize = imageM.size();
     // block size
-    int bW = cvRound((double)imageSize.width/(double)sbin);
-    int bH = cvRound((double)imageSize.height/(double)sbin);
+    int bW = cvFloor((double)imageSize.width/(double)sbin);
+    int bH = cvFloor((double)imageSize.height/(double)sbin);
     const Size blockSize(bW, bH);
     // size of HOG features
-    int oW = max(blockSize.width-2, 0) + 2*pad_x;
-    int oH = max(blockSize.height-2, 0) + 2*pad_y;
+    int oW = max(blockSize.width, 0) + 2*pad_x;
+    int oH = max(blockSize.height, 0) + 2*pad_y;
     Size outSize = Size(oW, oH);
     // size of visible
     const Size visible = blockSize*sbin;
@@ -31,7 +31,10 @@ void computeHOG32D(const Mat &imageM, Mat &featM, const int sbin, const int pad_
     // initialize historgram, norm, output feature matrices
     Mat histM = Mat::zeros(Size(blockSize.width*numOrient, blockSize.height), CV_64F);
     Mat normM = Mat::zeros(Size(blockSize.width, blockSize.height), CV_64F);
-    featM = Mat::zeros(Size(outSize.width*dimHOG, outSize.height), CV_64F);
+    //featM = Mat::zeros(Size(outSize.width*dimHOG, outSize.height), CV_64F);
+    
+    featM = Mat::zeros(Size(outSize.width, outSize.height), CV_64FC(dimHOG));
+
 
     // get the stride of each matrix
     const size_t imStride = imageM.step1();
@@ -196,21 +199,21 @@ void computeHOG32D(const Mat &imageM, Mat &featM, const int sbin, const int pad_
             *(dst++) = 0.2357 * t4;
 
             // truncation feature
-            *dst = 0;
+            //*dst = 0;
         }// for x
     }// for y
 
     // Truncation features
-    for (int m = 0; m < featM.rows; m++)
-    {
-        for (int n = 0; n < featM.cols; n += dimHOG)
-        {
-            if (m > pad_y - 1 && m < featM.rows - pad_y && n > pad_x*dimHOG - 1 && n < featM.cols - pad_x*dimHOG)
-                continue;
-
-            featM.at<double>(m, n + dimHOG - 1) = 1;
-        } // for x
-    }// for y
+//    for (int m = 0; m < featM.rows; m++)
+//    {
+//        for (int n = 0; n < featM.cols; n += dimHOG)
+//        {
+//            if (m > pad_y - 1 && m < featM.rows - pad_y && n > pad_x*dimHOG - 1 && n < featM.cols - pad_x*dimHOG)
+//                continue;
+//
+//            featM.at<double>(m, n + dimHOG - 1) = 1;
+//        } // for x
+//    }// for y
 }
 
 
@@ -218,13 +221,12 @@ cv::Mat get_features(Mat patch,int hog_orientations,int cell_size,Mat &cos_windo
     Mat featM;
     Mat imageM;
     patch.convertTo(imageM, CV_64F);
-	computeHOG32D(imageM, featM, hog_orientations, cell_size, cell_size);
+	computeHOG32D(imageM, featM, cell_size, 0, 0);
 	vector<Mat> planes;
 	split(featM, planes);
 	for (int i = 0; i < (dimHOG - 1); i++){
 		planes[i] = planes[i].mul(cos_window);
 	}
-	planes.erase(planes.end()-1);
 	merge(planes, featM);
     return featM;
 }

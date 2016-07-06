@@ -58,13 +58,15 @@ cv::Mat gaussian_shaped_labels(float sigma, Size sz, int ktype = CV_32F);
 
 cv::Mat fft(Mat x);
 
+vector<cv::Mat> nchannelsfft(Mat x);
+
 cv::Mat calculateHann(Size sz);
 
 cv::Mat get_subwindow(Mat &frame, Point pos, Size window_sz);
 
 cv::Mat gaussian_correlation(Mat &zf, Mat &model_xf, float sigma);
 
-
+cv::Mat gaussian_correlation(vector<Mat> &xf,vector<Mat> &yf, float sigma);
 
 cv::Mat complexMul(Mat x1, Mat x2);
 

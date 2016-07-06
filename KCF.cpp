@@ -85,6 +85,22 @@ cv::Mat fft(Mat x)
     return complexI;
 }
 
+vector<cv::Mat> nchannelsfft(Mat x)
+{
+    vector<Mat>plane,result;
+    split(x,plane);
+    for (int i = 0 ; i<plane.size(); i++) {
+        Mat planes[] = { Mat_<float>(plane[i]), Mat::zeros(x.size(), CV_32F) };
+        Mat complexI;
+        merge(planes, 2, complexI);         // Add to the expanded another plane with zeros
+        
+        dft(complexI, complexI);            // this way the result may fit in the source matrix
+        result.push_back(complexI);
+    }
+    
+    return result;
+}
+
 
 cv::Mat calculateHann(Size sz){
     Mat temp1(Size(sz.width, 1), CV_64FC1);
@@ -144,6 +160,42 @@ cv::Mat gaussian_correlation(Mat &xf, Mat &yf, float sigma){
     Mat xy;
     cv::idft(xyf, xy, cv::DFT_SCALE | cv::DFT_REAL_OUTPUT); // Applying IDFT
     double numelx1 = xf.cols*xf.rows;
+    Mat k;
+    exp(-1 / (sigma*sigma) * max(0, (xx + yy - 2 * xy) / numelx1),k);
+    return fft(k);
+}
+
+cv::Mat gaussian_correlation(vector<Mat> &xf,vector<Mat> &yf, float sigma){
+    
+    float N = xf[0].cols*xf[0].rows;
+    
+    float xx = 0,yy = 0;
+    for (int i = 0; i<xf.size(); i++) {
+        xx += norm(xf[i])*norm(xf[i])/ N;  //squared norm of x
+        yy += norm(yf[i])*norm(yf[i])/ N;  //squared norm of y
+    }
+    
+    
+    //cross-correlation term in Fourier domain
+    Mat xy;
+    
+    for (int i = 0; i<xf.size(); i++) {
+        Mat yf_conj;
+        vector<Mat> planes;
+        split(yf[i], planes);
+        planes[1] = planes[1] * -1;
+        merge(planes, yf_conj);
+        Mat xyf = complexMul(xf[i], yf_conj);
+        Mat temp;
+        cv::idft(xyf, temp, cv::DFT_SCALE | cv::DFT_REAL_OUTPUT); // Applying IDFT
+        if(i == 0)
+            temp.copyTo(xy);
+        else
+            xy += temp;
+        
+    }
+    
+    double numelx1 = xf[0].cols*xf[0].rows*xf.size();
     Mat k;
     exp(-1 / (sigma*sigma) * max(0, (xx + yy - 2 * xy) / numelx1),k);
     return fft(k);
