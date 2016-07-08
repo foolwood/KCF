@@ -90,12 +90,13 @@ vector<cv::Mat> nchannelsfft(Mat x)
     vector<Mat>plane,result;
     split(x,plane);
     for (int i = 0 ; i<plane.size(); i++) {
-        Mat planes[] = { Mat_<float>(plane[i]), Mat::zeros(x.size(), CV_32F) };
-        Mat complexI;
-        merge(planes, 2, complexI);         // Add to the expanded another plane with zeros
-        
-        dft(complexI, complexI);            // this way the result may fit in the source matrix
-        result.push_back(complexI);
+//        Mat planes[] = { Mat_<float>(plane[i]), Mat::zeros(x.size(), CV_32F) };
+//        Mat complexI;
+//        merge(planes, 2, complexI);         // Add to the expanded another plane with zeros
+//        dft(complexI, complexI);            // this way the result may fit in the source matrix
+//        cout<<complexI<<endl;
+//        result.push_back(complexI);
+        result.push_back(fft(plane[i]));
     }
     
     return result;
@@ -174,6 +175,7 @@ cv::Mat gaussian_correlation(vector<Mat> &xf,vector<Mat> &yf, float sigma){
         xx += norm(xf[i])*norm(xf[i])/ N;  //squared norm of x
         yy += norm(yf[i])*norm(yf[i])/ N;  //squared norm of y
     }
+    cout<<xx<<endl;
     
     
     //cross-correlation term in Fourier domain

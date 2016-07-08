@@ -62,7 +62,7 @@ int main(){
             if(float(maxLoc.y) > float(zf[0].rows)/2.0)
                 maxLoc.y = maxLoc.y -zf[0].rows;
             pos.x = pos.x + cell_size*(maxLoc.x);
-            pos.y = pos.y - cell_size*(maxLoc.y);
+            pos.y = pos.y + cell_size*(maxLoc.y);
         }
         
         patch = get_subwindow(im, pos, window_sz);
