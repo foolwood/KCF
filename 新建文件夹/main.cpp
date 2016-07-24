@@ -13,7 +13,7 @@ double tracker(string video_path, vector<String>img_files, Point pos, Size targe
   double interp_factor, int cell_size, bool show_visualization);
 
 string benchmark_path = "E:/100Benchmark/";
-string video_name = "Deer";
+string video_name = "David3";
 string video_path = benchmark_path + video_name +"/";
 vector<Rect> groundtruth_rect;
 vector<String>img_files;
@@ -30,7 +30,7 @@ int main(){
   features.gray = false;
   features.hog = false;
 
-	double padding = 1.5;
+	double padding = 1.7;
   double lambda = 1e-4;
 	double output_sigma_factor = 0.1;
 
