@@ -185,17 +185,17 @@ void computeHOG31D(const Mat &imageM, Mat &featM, const int sbin, const int pad_
 }
 
 
-vector<cv::Mat> get_features(Mat patch, string features, int cell_size, Mat &cos_window){
+vector<cv::Mat> get_features(Mat patch, string features, int cell_size, Mat &cos_window, FHoG &f_hog){
   Mat x;
   vector<Mat>x_vector;
   if (features == "hog")
   {
-    patch.convertTo(patch, CV_64F,1.0/255);
-    computeHOG31D(patch, x, cell_size, 0, 0);
+    patch.convertTo(patch, CV_32FC1,1.0/255);
+    x_vector = f_hog.extract(patch);
     if (!cos_window.empty()){
-      split(x, x_vector);
       for (int i = 0; i < x_vector.size(); i++)
       {
+        x_vector[i].convertTo(x_vector[i], CV_64FC1);
         x_vector[i] = x_vector[i].mul(cos_window);
       }
     }

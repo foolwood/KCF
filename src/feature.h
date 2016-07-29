@@ -12,6 +12,8 @@
 #include "opencv2/core/core_c.h"
 #include "opencv2/imgproc.hpp"
 
+#include "fhog.hpp"
+
 #include <string>
 #include <vector>
 
@@ -21,6 +23,6 @@ using namespace std;
 static const int dimHOG = 31;
 
 void computeHOG31D(const Mat &imageM, Mat &featM, const int sbin, const int pad_x, const int pad_y);
-vector<cv::Mat> get_features(Mat patch, string features, int cell_size, Mat &cos_window);
+vector<cv::Mat> get_features(Mat patch, string features, int cell_size, Mat &cos_window, FHoG &f_hog);
 
 #endif /* feature_h */
