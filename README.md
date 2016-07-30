@@ -21,12 +21,13 @@
 
 
 #### Speed
+![KCF](hog_result.png)
 
-Different feature:
+Different feature(Intel(R) Core(TM)i7-4790 CPU @ 3.60GHz):
 
 feature		 | FPS 
 ------------ | ------------- 
-HOG | 50
+HOG | 156.4
 GRAY| --
 
 ####Reference

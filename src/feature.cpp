@@ -204,7 +204,7 @@ vector<cv::Mat> get_features(Mat patch, string features, int cell_size, Mat &cos
   
   if (features == "gray")
   {
-    patch.convertTo(patch, CV_64F, 1.0 / 255);
+    patch.convertTo(x, CV_64F, 1.0 / 255, -0.5);
     if (!cos_window.empty())
       x = x.mul(cos_window);
     x_vector.push_back(x);

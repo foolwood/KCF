@@ -2,6 +2,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <cmath>
+#include "feature.h"
 
 using namespace std;
 using namespace cv;
