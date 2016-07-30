@@ -30,7 +30,7 @@ int main(){
   features.gray = false;
   features.hog = false;
 
-	double padding = 1.7;
+	double padding = 1.5;
   double lambda = 1e-4;
 	double output_sigma_factor = 0.1;
 
@@ -102,24 +102,19 @@ double tracker(string video_path, vector<String>img_files, Point pos, Size targe
   //dft(GaussianShapedLabels(output_sigma, scale_size(window_sz, 1. / cell_size)), yf, DFT_COMPLEX_OUTPUT);
   //Mat cos_window(yf.size(), CV_64FC1);
   //CalculateHann(cos_window, yf.size());
-  Size response_size = window_sz;
-  if (features.hog){
-    response_size.width = cvRound((double)window_sz.width / (double)cell_size) - 2;
-    response_size.height = cvRound((double)window_sz.height / (double)cell_size) - 2;
-  }
+  Size response_size = window_sz / cell_size;
   Mat yf;
   dft(GaussianShapedLabels(output_sigma, response_size), yf, DFT_COMPLEX_OUTPUT);
   Mat cos_window(yf.size(), CV_64FC1);
   CalculateHann(cos_window, response_size);
-
-
+  FHoG f_hog;
   
 
   Mat im;
   Mat im_gray;
   Mat alphaf, modal_alphaf;
   Mat patch;
-  Mat k, kf, kzf;
+  Mat kf, kzf;
   Mat response;
   vector<Mat> modal_xf,zf;
   double time = 0;
@@ -139,7 +134,7 @@ double tracker(string video_path, vector<String>img_files, Point pos, Size targe
     if (frame > 0)
     {
       GetSubwindow(im_gray, patch, pos, window_sz);
-      vector<Mat> z = get_features(patch, "hog", cell_size, cos_window);
+      vector<Mat> z = get_features(patch, "hog", cell_size, cos_window, f_hog);
       vector<Mat> zf_vector(z.size());
       for (int i = 0; i < z.size(); i++)
       {
@@ -173,7 +168,7 @@ double tracker(string video_path, vector<String>img_files, Point pos, Size targe
 
     //get subwindow at current estimated target position, to train classifer
     GetSubwindow(im_gray, patch, pos, window_sz);
-    vector<Mat> x = get_features(patch, "hog", cell_size, cos_window);
+    vector<Mat> x = get_features(patch, "hog", cell_size, cos_window, f_hog);
     vector<Mat> xf_vector(x.size());
     for (int i = 0; i < x.size(); i++)
     {

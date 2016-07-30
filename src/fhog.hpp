@@ -42,6 +42,11 @@ public:
 //        }
 
         //image cols-by-cols
+
+        //cv::Mat i = img.clone();
+        //i = i.t();
+        //float *I = i.ptr<float>(0);
+
         float * I = new float[h*w];
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
@@ -83,8 +88,8 @@ public:
                     desc.at<float>(y,x) = H[i*hb*wb + x*hb + y];
                 }
             }
-
             res.push_back(desc.clone());
+
         }
 
         //clean

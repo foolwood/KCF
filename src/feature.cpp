@@ -190,7 +190,7 @@ vector<cv::Mat> get_features(Mat patch, string features, int cell_size, Mat &cos
   vector<Mat>x_vector;
   if (features == "hog")
   {
-    patch.convertTo(patch, CV_32FC1,1.0/255);
+    patch.convertTo(patch, CV_32FC1);
     x_vector = f_hog.extract(patch);
     if (!cos_window.empty()){
       for (int i = 0; i < x_vector.size(); i++)
