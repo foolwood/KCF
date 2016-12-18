@@ -1,6 +1,6 @@
 # KCF
 
-**This is a C++ version of KCF**
+**This is a C++ implementation of KCF**
 
 ![benchmark](http://www.robots.ox.ac.uk/~joao/circulant/tiles.png)
 
@@ -25,10 +25,15 @@
 
 Different feature(Intel(R) Core(TM)i7-4790 CPU @ 3.60GHz):
 
-feature		 | FPS 
------------- | ------------- 
-HOG | 156.4
-GRAY| --
+  feature  |   Kernel   | FPS 
+-----------| -----------|----- 
+    HOG    |  gaussian  | 241.00
+    HOG    | polynomial | 252.48
+    HOG    |   linear   | 292.70
+    gray   |  gaussian  | 567.66
+    gray   | polynomial | 610.27
+    gray   |   linear   | 1038.60
+
 
 ####Reference
 ----------
