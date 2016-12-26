@@ -41,7 +41,7 @@ void KCF::Init(cv::Mat image, cv::Rect rect_init) {
   result_rect_ = rect_init;
 
   pos_ = cv::Point(rect_init.x+ cvFloor((float)(rect_init.width)/2.),
-                   rect_init.y+ cvFloor((float)(rect_init.height)/2.));
+		           rect_init.y+ cvFloor((float)(rect_init.height)/2.));
   target_sz_ = rect_init.size();
 
   resize_image_ = std::sqrt(target_sz_.area()) >= 100;
@@ -52,12 +52,10 @@ void KCF::Init(cv::Mat image, cv::Rect rect_init) {
 
   window_sz_ = FloorSizeScale(target_sz_, 1 + padding_);
 
-  float output_sigma = std::sqrt(float(target_sz_.area()))
-                       * output_sigma_factor_ / cell_size_;
+  float output_sigma = std::sqrt(float(target_sz_.area())) * output_sigma_factor_ / cell_size_;
 
-  cv::dft(GaussianShapedLabels(output_sigma, 
-                               FloorSizeScale(window_sz_, 1. / cell_size_)),
-          yf_, DFT_COMPLEX_OUTPUT);
+  cv::dft(GaussianShapedLabels(output_sigma, FloorSizeScale(window_sz_, 1. / cell_size_)),
+		  yf_, DFT_COMPLEX_OUTPUT);
 
   cos_window_ = CalculateHann(yf_.size());
 
@@ -71,19 +69,18 @@ cv::Rect KCF::Update(cv::Mat image) {
   std::vector<cv::Mat> z = GetFeatures(patch);
   std::vector<cv::Mat> zf_vector(z.size());
   for (unsigned int i = 0; i < z.size(); ++i)
-    cv::dft(z[i], zf_vector[i], DFT_COMPLEX_OUTPUT);
+	cv::dft(z[i], zf_vector[i], DFT_COMPLEX_OUTPUT);
 
   cv::Mat kzf;
   if (strcmp(kernel_type_.c_str(), "gaussian") == 0)
-    kzf = GaussianCorrelation(zf_vector, model_xf_);
+	kzf = GaussianCorrelation(zf_vector, model_xf_);
   else if (strcmp(kernel_type_.c_str(), "polynomial") == 0)
-    kzf = PolynomialCorrelation(zf_vector,model_xf_);
+	kzf = PolynomialCorrelation(zf_vector,model_xf_);
   else
-    kzf = LinearCorrelation(zf_vector,model_xf_);
+	kzf = LinearCorrelation(zf_vector,model_xf_);
 
   cv::Mat response;
-  cv::idft(ComplexMul(model_alphaf_, kzf), response,
-           cv::DFT_SCALE | cv::DFT_REAL_OUTPUT); // Applying IDFT
+  cv::idft(ComplexMul(model_alphaf_, kzf), response, cv::DFT_SCALE | cv::DFT_REAL_OUTPUT); // Applying IDFT
 
   cv::Point maxLoc;
   cv::minMaxLoc(response, NULL, NULL, NULL, &maxLoc);
@@ -110,12 +107,12 @@ void KCF::Learn(cv::Mat &patch, float lr) {
   std::vector<cv::Mat> xf(x.size());
 
   for (unsigned int i = 0; i < x.size(); i++)
-    cv::dft(x[i], xf[i], DFT_COMPLEX_OUTPUT);
+	cv::dft(x[i], xf[i], DFT_COMPLEX_OUTPUT);
 
   cv::Mat kf;
   if (strcmp(kernel_type_.c_str(), "gaussian") == 0)
     kf = GaussianCorrelation(xf, xf);
-  else if (strcmp(kernel_type_.c_str(), "polynomial") == 0)
+  else if(strcmp(kernel_type_.c_str(), "polynomial") == 0)
     kf = PolynomialCorrelation(xf, xf);
   else
     kf = LinearCorrelation(xf, xf);
@@ -123,9 +120,9 @@ void KCF::Learn(cv::Mat &patch, float lr) {
   cv::Mat alphaf = ComplexDiv(yf_, kf + cv::Scalar(lambda_, 0));
 
   if (lr > 0.99) {
-    model_alphaf_ = alphaf;
-    model_xf_.clear();
-    for (unsigned int i = 0; i < xf.size(); ++i)
+	model_alphaf_ = alphaf;
+	model_xf_.clear();
+	for (unsigned int i = 0; i < xf.size(); ++i)
       model_xf_.push_back(xf[i]);
   } else {
     model_alphaf_ = (1.0 - lr) * model_alphaf_ + lr * alphaf;
@@ -168,12 +165,12 @@ void CircShift(cv::Mat &x,cv::Size k) {
   else
     cy = x.rows - k.height;
 
-  cv::Mat q0(x, cv::Rect(0, 0, cx, cy)); // Top-Left - Create a ROI per quadrant
-  cv::Mat q1(x, cv::Rect(cx, 0, x.cols - cx, cy)); // Top-Right
-  cv::Mat q2(x, cv::Rect(0, cy, cx, x.rows -cy)); // Bottom-Left
+  cv::Mat q0(x, cv::Rect(0, 0, cx, cy));   // Top-Left - Create a ROI per quadrant
+  cv::Mat q1(x, cv::Rect(cx, 0, x.cols - cx, cy));  // Top-Right
+  cv::Mat q2(x, cv::Rect(0, cy, cx, x.rows -cy));  // Bottom-Left
   cv::Mat q3(x, cv::Rect(cx, cy, x.cols -cx, x.rows-cy)); // Bottom-Right
 
-  cv::Mat tmp1, tmp2; // swap quadrants (Top-Left with Bottom-Right)
+  cv::Mat tmp1, tmp2;                           // swap quadrants (Top-Left with Bottom-Right)
   cv::hconcat(q3, q2, tmp1);
   cv::hconcat(q1, q0, tmp2);
   cv::vconcat(tmp1, tmp2, x);
@@ -182,8 +179,7 @@ void CircShift(cv::Mat &x,cv::Size k) {
 
 cv::Mat KCF::GaussianShapedLabels(float sigma, cv::Size sz) {
   cv::Mat labels = CreateGaussian2(sz, sigma);
-  cv::Size shift_temp = cv::Size(-cvFloor(sz.width * (1./2)),
-                                 -cvFloor(sz.height * (1./2)));
+  cv::Size shift_temp = cv::Size(-cvFloor(sz.width * (1./2)), -cvFloor(sz.height * (1./2)));
   shift_temp.width += 1;
   shift_temp.height += 1;
   CircShift(labels, shift_temp);
@@ -194,32 +190,29 @@ cv::Mat KCF::CalculateHann(cv::Size sz) {
   cv::Mat temp1(Size(sz.width, 1), CV_32FC1);
   cv::Mat temp2(Size(sz.height, 1), CV_32FC1);
   for (int i = 0; i < sz.width; ++i)
-    temp1.at<float>(0, i) = 0.5*(1 - cos(2 * PI*i / (sz.width - 1)));
+	temp1.at<float>(0, i) = 0.5*(1 - cos(2 * PI*i / (sz.width - 1)));
   for (int i = 0; i < sz.height; ++i)
-    temp2.at<float>(0, i) = 0.5*(1 - cos(2 * PI*i / (sz.height - 1)));
+	temp2.at<float>(0, i) = 0.5*(1 - cos(2 * PI*i / (sz.height - 1)));
   return temp2.t()*temp1;
 }
 
 cv::Mat KCF::GetSubwindow(const cv::Mat &frame, cv::Point centerCoor, cv::Size sz) {
   cv::Mat subWindow;
-  cv::Point lefttop(min(frame.cols-1, max(-sz.width+1, centerCoor.x - cvFloor(float(sz.width) / 2.0) + 1)),
-                    min(frame.rows-1, max(-sz.height+1, centerCoor.y - cvFloor(float(sz.height) / 2.0) + 1)));
+  cv::Point lefttop(min(frame.cols-2, max(-sz.width+1, centerCoor.x - cvFloor(float(sz.width) / 2.0) + 1)),
+		  	  	  	min(frame.rows-2, max(-sz.height+1, centerCoor.y - cvFloor(float(sz.height) / 2.0) + 1)));
   cv::Point rightbottom(lefttop.x + sz.width, lefttop.y + sz.height);
 
   cv::Rect border(-min(lefttop.x, 0), -min(lefttop.y, 0),
-                  max(rightbottom.x - frame.cols + 1, 0),
-                  max(rightbottom.y - frame.rows + 1, 0));
+		  max(rightbottom.x - frame.cols+1, 0), max(rightbottom.y - frame.rows+1, 0));
   cv::Point lefttopLimit(max(lefttop.x, 0), max(lefttop.y, 0));
-  cv::Point rightbottomLimit(min(rightbottom.x, frame.cols - 1), 
-                             min(rightbottom.y, frame.rows - 1));
+  cv::Point rightbottomLimit(min(rightbottom.x, frame.cols - 1), min(rightbottom.y, frame.rows - 1));
 
   cv::Rect roiRect(lefttopLimit, rightbottomLimit);
 
   frame(roiRect).copyTo(subWindow);
 
   if (border != Rect(0,0,0,0))
-    cv::copyMakeBorder(subWindow, subWindow, border.y, border.height, border.x,
-                       border.width, cv::BORDER_REPLICATE);
+	cv::copyMakeBorder(subWindow, subWindow, border.y, border.height, border.x, border.width, cv::BORDER_REPLICATE);
   return subWindow;
 }
 
@@ -240,7 +233,8 @@ std::vector<cv::Mat> KCF::GetFeatures(cv::Mat patch) {
   if (features_gray_) {
     if(patch.channels() == 3)
       cv::cvtColor(patch, patch, CV_BGR2GRAY);
-    patch.convertTo(x, CV_32FC1, 1.0 / 255, -(cv::mean(x)).val[0]);
+    patch.convertTo(x, CV_32FC1, 1.0 / 255);
+    x = x - cv::mean(x).val[0];
     x = x.mul(cos_window_);
     x_vector.push_back(x);
   }
@@ -248,8 +242,7 @@ std::vector<cv::Mat> KCF::GetFeatures(cv::Mat patch) {
   return x_vector;
 }
 
-cv::Mat KCF::GaussianCorrelation(std::vector<cv::Mat> xf, 
-                                 std::vector<cv::Mat> yf) {
+cv::Mat KCF::GaussianCorrelation(std::vector<cv::Mat> xf, std::vector<cv::Mat> yf) {
   int N = xf[0].size().area();
   double xx = 0, yy = 0;
 
@@ -259,13 +252,12 @@ cv::Mat KCF::GaussianCorrelation(std::vector<cv::Mat> xf,
     xx += cv::norm(xf[i]) * cv::norm(xf[i]) / N;
     yy += cv::norm(yf[i]) * cv::norm(yf[i]) / N;
     cv::mulSpectrums(xf[i], yf[i], xyf, 0, true);
-    cv::idft(xyf, xy_temp, cv::DFT_SCALE | cv::DFT_REAL_OUTPUT); //Applying IDFT
+    cv::idft(xyf, xy_temp, cv::DFT_SCALE | cv::DFT_REAL_OUTPUT); // Applying IDFT
     xy += xy_temp;
   }
   float numel_xf = N * xf.size();
   cv::Mat k, kf;
-  exp((-1 / (kernel_sigma_ * kernel_sigma_)) * max(0.0, (xx + yy - 2 * xy) 
-      / numel_xf), k);
+  exp((-1 / (kernel_sigma_ * kernel_sigma_)) * max(0.0, (xx + yy - 2 * xy) / numel_xf), k);
   k.convertTo(k, CV_32FC1);
   dft(k, kf, DFT_COMPLEX_OUTPUT);
   return kf;
@@ -276,7 +268,7 @@ cv::Mat KCF::PolynomialCorrelation(std::vector<cv::Mat> xf, std::vector<cv::Mat>
   cv::Mat xy(xf[0].size(), CV_32FC1, Scalar(0)), xyf, xy_temp;
   for (unsigned int i = 0; i < xf.size(); ++i) {
     cv::mulSpectrums(xf[i], yf[i], xyf, 0, true);
-    cv::idft(xyf, xy_temp, cv::DFT_SCALE | cv::DFT_REAL_OUTPUT); //Applying IDFT
+    cv::idft(xyf, xy_temp, cv::DFT_SCALE | cv::DFT_REAL_OUTPUT); // Applying IDFT
     xy += xy_temp;
   }
   float numel_xf = xf[0].size().area() * xf.size();
