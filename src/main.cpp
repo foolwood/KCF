@@ -17,13 +17,13 @@ using namespace cv;
 using namespace std;
 
 std::vector<cv::Rect> GetGroundtruth(std::string txt_file);
-std::vector<double>PrecisionCalculate(std::vector<Rect> groundtruth_rect, 
-				      std::vector<Rect> result_rect);
+std::vector<double>PrecisionCalculate(std::vector<cv::Rect> groundtruth_rect, 
+				      std::vector<cv::Rect> result_rect);
 
 int main(int argc, char **argv) {
-  if (argc != 2) {
+  if (argc != 3) {
     std::cout << "Usage:" 
-              << argv[0] << "video_base_path[./David3]" << std::endl;
+              << argv[0] << " video_base_path[./David3] Verbose[0/1]" << std::endl;
     return 0;
   }
   std::string video_base_path = argv[1];
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
   std::vector<cv::Rect> result_rect;
   int64 tic, toc;
   double time = 0;
-  bool show_visualization = true;
+  bool show_visualization = argc == 3? atoi(argv[2]) : true;
 
   std::string kernel_type = "gaussian";//gaussian polynomial linear
   std::string feature_type = "hog";//hog gray
@@ -120,7 +120,7 @@ std::vector<double> PrecisionCalculate(std::vector<cv::Rect>groundtruth_rect,
   }
   std::vector<double> distances;
   double distemp;
-  for (unsigned int  i = 0; i < result_rect.size(); ++i) {
+  for (unsigned int i = 0; i < result_rect.size(); ++i) {
     distemp = sqrt(double(pow((result_rect[i].x + result_rect[i].width / 2) -
               (groundtruth_rect[i].x + groundtruth_rect[i].width / 2), 2) +
                           pow((result_rect[i].y + result_rect[i].height / 2) -

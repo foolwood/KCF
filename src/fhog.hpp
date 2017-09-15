@@ -31,26 +31,11 @@ public:
             std::cerr << "I must be at least 2x2." << std::endl;
             return std::vector<cv::Mat>();
         }
-
-//        //image rows-by-rows
-//        float * I = new float[h*w];
-//        for (int y = 0; y < h; ++y) {
-//            const float * row_ptr = img.ptr<float>(y);
-//            for (int x = 0; x < w; ++x) {
-//                I[y*w + x] = row_ptr[x];
-//            }
-//        }
-
-        //image cols-by-cols
-
-        //cv::Mat i = img.clone();
-        //i = i.t();
-        //float *I = i.ptr<float>(0);
-
+        
         float * I = new float[h*w];
         for (int x = 0; x < w; ++x) {
             for (int y = 0; y < h; ++y) {
-                I[x*h + y] = img.at<float>(y, x)/255.f;
+                I[x*h + y] = img.at<float>(y, x);
             }
         }
 
@@ -89,7 +74,6 @@ public:
                 }
             }
             res.push_back(desc.clone());
-
         }
 
         //clean

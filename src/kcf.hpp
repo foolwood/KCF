@@ -29,9 +29,9 @@ public:
 protected:
   void Learn(cv::Mat &patch, float lr);
 
-  cv::Mat CreateGaussian1(int n, float sigma);
+  cv::Mat CreateGaussian1D(int n, float sigma);
 
-  cv::Mat CreateGaussian2(cv::Size sz, float sigma);
+  cv::Mat CreateGaussian2D(cv::Size sz, float sigma);
 
   cv::Mat GaussianShapedLabels(float sigma, cv::Size sz);
 
@@ -51,14 +51,14 @@ protected:
 
   cv::Mat ComplexDiv(const cv::Mat &x1, const cv::Mat &x2);
 
-  inline cv::Size FloorSizeScale(cv::Size sz,double scale_factor) {
+  inline cv::Size FloorSizeScale(cv::Size sz, double scale_factor) {
             if (scale_factor > 0.9999 && scale_factor < 1.0001)
               return sz;
            return cv::Size(cvFloor(sz.width * scale_factor), 
                            cvFloor(sz.height * scale_factor));
          }
 
-  inline cv::Point FloorPointScale(cv::Point p,double scale_factor) {
+  inline cv::Point FloorPointScale(cv::Point p, double scale_factor) {
            if (scale_factor > 0.9999 && scale_factor < 1.0001)
               return p; 
            return cv::Point(cvFloor(p.x * scale_factor), 
@@ -89,7 +89,5 @@ private:
   cv::Mat model_alphaf_;
   FHoG f_hog_;
 };
-
-
 
 #endif /* SRC_KCF_HPP_ */
